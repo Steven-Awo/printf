@@ -214,35 +214,34 @@ int write_pointer(char bufferz[], int ind, int lengthz,
 
 	if (widthz > lengthz)
 	{
-		for (i = 3; i < widthz - lengthz + 3; i++)
-			bufferz[i] = paddz;
-		bufferz[i] = '\0';
-		if (flagsz & F_MINUS && paddz == ' ')/* Asign extra char to left of buffer */
-		{
-			bufferz[--ind] = 'x';
-			bufferz[--ind] = '0';
-			if (extra_c)
-				bufferz[--ind] = extra_c;
-			return (write(1, &bufferz[ind], lengthz) + write(1, &bufferz[3], i - 3));
-		}
-		else if (!(flagsz & F_MINUS) && paddz == ' ')/* extra char to left of buffer */
-		{
-			bufferz[--ind] = 'x';
-			bufferz[--ind] = '0';
-			if (extra_c)
-				bufferz[--ind] = extra_c;
-			return (write(1, &bufferz[3], i - 3) + write(1, &bufferz[ind], lengthz));
-		}
-		else if (!(flagsz & F_MINUS) && paddz == '0')/* extra char to left of padd */
-		{
-			if (extra_c)
-				bufferz[--paddz_start] = extra_c;
-			bufferz[1] = '0';
-			bufferz[2] = 'x';
-			return (write(1, &bufferz[paddz_start], i - paddz_start) +
-				write(1, &bufferz[ind], lengthz - (1 - paddz_start) - 2));
-		}
+	for (i = 3; i < widthz - lengthz + 3; i++)
+		bufferz[i] = paddz;
+	bufferz[i] = '\0';
+	if (flagsz & F_MINUS && paddz == ' ')/* Asign extra char of buffer */
+	{
+	bufferz[--ind] = 'x';
+	bufferz[--ind] = '0';
+	if (extra_c)
+		bufferz[--ind] = extra_c;
+	return (write(1, &bufferz[ind], lengthz) + write(1, &bufferz[3], i - 3));
 	}
+	else if (!(flagsz & F_MINUS) && paddz == ' ')/* extra char of buffer */
+	{
+	bufferz[--ind] = 'x';
+	bufferz[--ind] = '0';
+	if (extra_c)
+		bufferz[--ind] = extra_c;
+	return (write(1, &bufferz[3], i - 3) + write(1, &bufferz[ind], lengthz));
+	}
+	else if (!(flagsz & F_MINUS) && paddz == '0')/* extra char to padd */
+	{
+	if (extra_c)
+		bufferz[--paddz_start] = extra_c;
+	bufferz[1] = '0';
+	bufferz[2] = 'x';
+	return (write(1, &bufferz[paddz_start], i - paddz_start) +
+		write(1, &bufferz[ind], lengthz - (1 - paddz_start) - 2));
+	}}
 	bufferz[--ind] = 'x';
 	bufferz[--ind] = '0';
 	if (extra_c)
