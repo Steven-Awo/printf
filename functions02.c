@@ -1,183 +1,180 @@
 #include "main.h"
-
 /**
- * print_char - APrints a char
+ * print_pointer - Prints the value of a pointer variable
  * @typesz: List a of arguments
  * @bufferz: Bufferz array to handle print
  * @flagsz:  Calculates active flagsz
- * @widthz: Widthz
+ * @widthz: get widthz
  * @precisionz: Precisionz specification
  * @sizez: Sizez specifier
- * Return: Number of chars printed
+ * Return: Number of chars printed.
  */
 
-int print_char(va_list typesz, char bufferz[], int flagsz,
-	int widthz, int precisionz, int sizez)
+int print_pointer(va_list typesz, char bufferz[], int flagsz,
+		int widthz, int precisionz, int sizez)
 {
-	char c = va_arg(typesz, int);
+	char ext_c = 0, padz = ' ';
+	int numb = BUFF_SIZE - 2, len = 2;
+	int bg_pd = 1; /* length=2, for '0x' */
+	unsigned long numb_addrsz;
+	char map_toz[] = "0123456789abcdef";
+	void *addrsz = va_arg(typesz, void *);
 
-	return (handle_write_char(c, bufferz, flagsz, widthz, precisionz, sizez));
+	UNUSED(widthz);
+	UNUSED(sizez);
+	if (addrsz == NULL)
+	{
+	return (write(1, "(nil)", 5));
+	}
+	bufferz[BUFF_SIZE - 1] = '\0';
+	UNUSED(precisionz);
+	numb_addrsz = (unsigned long)addrsz;
+	while (numb_addrsz > 0)
+	{
+	bufferz[numb--] = map_toz[numb_addrsz % 16];
+	numb_addrsz /= 16;
+	len++;
+	}
+	if ((flagsz & F_ZERO) && !(flagsz & F_MINUS))
+	{
+	padz = '0';
+	}
+	if (flagsz & F_PLUS)
+		ext_c = '+', len++;
+	else if (flagsz & F_SPACE)
+		ext_c = ' ', len++;
+	numb++;
+	/*return (write(1, &bufferz[i], BUFF_SIZE - i - 1));*/
+	return (write_pointer(bufferz, numb, len,
+		widthz, flagsz, padz, ext_c, bg_pd));
 }
 
 /**
- * print_string - Prints a string
- * @typesz: List a of arguments
+ * print_non_printable - Prints ascii codes in hexa of non printable chars
+ * @typesz: Lista of arguments
  * @bufferz: Bufferz array to handle print
  * @flagsz:  Calculates active flagsz
- * @widthz: get widthz.
+ * @widthz: get widthz
  * @precisionz: Precisionz specification
  * @sizez: Sizez specifier
  * Return: Number of chars printed
  */
 
-int print_string(va_list typesz, char bufferz[], int flagsz,
-		int widthz, int precisionz, int sizez)
+int print_non_printable(va_list typesz, char bufferz[],
+	int flagsz, int widthz, int precisionz, int sizez)
 {
-	int len = 0, a;
+	int x = 0, offsetz = 0;
 	char *str = va_arg(typesz, char *);
 
-	UNUSED(bufferz);
 	UNUSED(flagsz);
 	UNUSED(widthz);
 	UNUSED(precisionz);
 	UNUSED(sizez);
 	if (str == NULL)
 	{
-	str = "(null)";
-	if (precisionz >= 6)
-		str = "      ";
+	return (write(1, "(null)", 6));
 	}
-	while (str[len] != '\0')
-		len++;
-	if (precisionz >= 0 && precisionz < len)
+	while (str[x] != '\0')
 	{
-	len = precisionz;
-	}
-	if (widthz > len)
+	if (is_printable(str[x]))
 	{
-	if (flagsz & F_MINUS)
-	{
-	write(1, &str[0], len);
-	for (a = widthz - len; a > 0; a--)
-	{
-	write(1, " ", 1);
-	}
-	return (widthz);
+	bufferz[x + offsetz] = str[x];
 	}
 	else
 	{
-	for (a = widthz - len; a > 0; a--)
-		write(1, " ", 1);
-	write(1, &str[0], len);
-	return (widthz);
+	offsetz += append_hexa_code(str[x], bufferz, x + offsetz);
 	}
+	x++;
 	}
-	return (write(1, str, len));
+	bufferz[x + offsetz] = '\0';
+	return (write(1, bufferz, x + offsetz));
 }
 
 /**
- * print_percent - Prints a percent sign
+ * print_reverse - Prints reverse string.
  * @typesz: Lista of arguments
  * @bufferz: Bufferz array to handle print
  * @flagsz:  Calculates active flagsz
- * @widthz: get widthz.
+ * @widthz: get widthz
  * @precisionz: Precisionz specification
  * @sizez: Sizez specifier
- * Return: Number of chars printed
+ * Return: Numbers of chars printed
  */
 
-int print_percent(va_list typesz, char bufferz[], int flagsz,
-		int widthz, int precisionz, int sizez)
-{
-	UNUSED(typesz);
-	UNUSED(bufferz);
-	UNUSED(flagsz);
-	UNUSED(widthz);
-	UNUSED(precisionz);
-	UNUSED(sizez);
-	return (write(1, "%%", 1));
-}
-
-/**
- * print_int - Print int
- * @typesz: Lista of arguments
- * @bufferz: Bufferz array to handle print
- * @flagsz:  Calculates active flagsz
- * @widthz: get widthz.
- * @precisionz: Precisionz specification
- * @sizez: Sizez specifier
- * Return: Number of chars printed
- */
-
-int print_int(va_list typesz, char bufferz[], int flagsz,
-		int widthz, int precisionz, int sizez)
-{
-	int a = BUFF_SIZE - 2;
-	int is_negativez = 0;
-	long int b = va_arg(typesz, long int);
-	unsigned long int numz;
-
-	b = convert_size_number(b, sizez);
-	if (b == 0)
-	{
-	bufferz[a--] = '0';
-	}
-	bufferz[BUFF_SIZE - 1] = '\0';
-	numz = (unsigned long int)b;
-	if (b < 0)
-	{
-	numz = (unsigned long int)((-1) * b);
-	is_negativez = 1;
-	}
-	while (numz > 0)
-	{
-	bufferz[a--] = (numz % 10) + '0';
-	numz /= 10;
-	}
-	a++;
-	return (write_number(is_negativez, a, bufferz,
-		flagsz, widthz, precisionz, sizez));
-}
-
-/**
- * print_binary - Prints an unsigned number
- * @typesz: Lista of arguments
- * @bufferz: Bufferz array to handle print
- * @flagsz:  Calculates active flagsz
- * @widthz: get widthz.
- * @precisionz: Precisionz specification
- * @sizez: Sizez specifier
- * Return: Numbers of char printed.
- */
-
-int print_binary(va_list typesz, char bufferz[],
+int print_reverse(va_list typesz, char bufferz[],
 	int flagsz, int widthz, int precisionz, int sizez)
 {
-	unsigned int b, d, e, sumz;
-	unsigned int a[32];
-	int countz;
+	char *str;
+	int x, countz = 0;
 
+	UNUSED(bufferz);
+	UNUSED(flagsz);
+	UNUSED(widthz);
+	UNUSED(sizez);
+	str = va_arg(typesz, char *);
+	if (str == NULL)
+	{
+	UNUSED(precisionz);
+	str = ")Null(";
+	}
+	for (x = 0; str[x]; x++)
+		;
+	for (x = x - 1; x >= 0; x--)
+	{
+	char y = str[x];
+
+	write(1, &y, 1);
+	countz++;
+	}
+	return (countz);
+}
+
+/**
+ * print_rot13string - Print a string in rot13.
+ * @typesz: Lista of arguments
+ * @bufferz: Bufferz array to handle print
+ * @flagsz:  Calculates active flagsz
+ * @widthz: get widthz
+ * @precisionz: Precisionz specification
+ * @sizez: Sizez specifier
+ * Return: Numbers of chars printed
+ */
+
+int print_rot13string(va_list typesz, char bufferz[],
+	int flagsz, int widthz, int precisionz, int sizez)
+{
+	char a;
+	char *strz;
+	unsigned int x;
+	unsigned int y;
+	int countz = 0;
+	char inz[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	char outz[] = "NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm";
+
+	strz = va_arg(typesz, char *);
 	UNUSED(bufferz);
 	UNUSED(flagsz);
 	UNUSED(widthz);
 	UNUSED(precisionz);
 	UNUSED(sizez);
-	b = va_arg(typesz, unsigned int);
-	d = 2147483648; /* (2 ^ 31) */
-	a[0] = b / d;
-	for (e = 1; e < 32; e++)
+	if (strz == NULL)
+		strz = "(AHYY)";
+	for (x = 0; strz[x]; x++)
 	{
-	d /= 2;
-	a[e] = (b / d) % 2;
+	for (y = 0; inz[y]; y++)
+	{
+	if (inz[y] == strz[x])
+	{
+	a = outz[y];
+	write(1, &a, 1);
+	countz++;
+	break;
 	}
-	for (e = 0, sumz = 0, countz = 0; e < 32; e++)
+	}
+	if (!inz[y])
 	{
-	sumz += a[e];
-	if (sumz || e == 31)
-	{
-	char z = '0' + a[e];
-
-	write(1, &z, 1);
+	a = strz[x];
+	write(1, &a, 1);
 	countz++;
 	}
 	}

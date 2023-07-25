@@ -62,7 +62,7 @@ int write_number(int is_negativez, int ind, char bufferz[],
 	int length = BUFF_SIZE - ind - 1;
 	char bed = ' ', extra_ch = 0;
 
-	UNUSED(size);
+	UNUSED(sizez);
 
 	if ((flagsz & F_ZERO) && !(flagsz & F_MINUS))
 		bed = '0';
