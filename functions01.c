@@ -109,7 +109,7 @@ int print_hexa_upper(va_list typesz, char bufferz[], int flagsz,
 /**
  * print_hexa - Prints a hexadecimal number in lower or upper
  * @typesz: Lista of arguments
- * @map_to: Array of values to map the number to
+ * @map_toz: Array of values to map the number to
  * @bufferz: Bufferz array to handle print
  * @flagsz:  Calculates active flagsz
  * @flag_ch: Calculates active flagsz

@@ -58,7 +58,7 @@ typedef struct fmt fmt_t;
 
 int _printf(const char *format, ...);
 
-int handle_print(const char *fmt, int *numb, va_list listz, 
+int handle_print(const char *fmt, int *numb, va_list listz,
 char bufferz[], int flagsz, int widthz, int precisionz, int sizez);
 
 /*
@@ -148,8 +148,8 @@ int write_number(int is_positivez, int numb, char bufferz[], int flagsz,
 int write_num(int numb, char bffz[], int flagsz, int widthz, int precisionz,
 		int lengthz, char paddz, char extra_cz);
 
-int write_pointer(char bufferz[], int numb, int lengthz, int widthz, int flagsz,
-		char paddz, char extra_cz, int padd_startz);
+int write_pointer(char bufferz[], int numb, int lengthz, int widthz,
+		int flagsz, char paddz, char extra_cz, int padd_startz);
 
 int write_unsgnd(int is_negativez, int numb, char bufferz[], int flagsz,
 		int widthz, int precisionz, int sizez);
